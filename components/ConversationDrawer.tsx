@@ -1,9 +1,10 @@
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { Ionicons } from '@expo/vector-icons';
 import type { BottomSheetBackdropProps } from '@gorhom/bottom-sheet';
-import BottomSheet, { BottomSheetBackdrop, BottomSheetView } from '@gorhom/bottom-sheet';
+import BottomSheet, { BottomSheetBackdrop, BottomSheetView, useBottomSheet } from '@gorhom/bottom-sheet';
 import React, { useEffect, useMemo, useRef } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
+import Animated, { interpolate, useAnimatedStyle } from 'react-native-reanimated';
 import InputSection from './InputSection';
 import MessageBubble, { Message } from './MessageBubble';
 import QuestionPrompts from './QuestionPrompts';
@@ -17,6 +18,71 @@ interface ConversationDrawerProps {
   onSelectPrompt: (prompt: string) => void;
   isExpanded: boolean;
   onExpandChange: (expanded: boolean) => void;
+}
+
+// Animated Messages Section - must be inside BottomSheet to use useBottomSheet hook
+interface AnimatedMessagesSectionProps {
+  messages: Message[];
+  flatListRef: React.RefObject<FlatList | null>;
+  textDark: string;
+  onExpandChange: (expanded: boolean) => void;
+}
+
+function AnimatedMessagesSection({ messages, flatListRef, textDark, onExpandChange }: AnimatedMessagesSectionProps) {
+  const { animatedIndex } = useBottomSheet();
+
+  // Animate both height and opacity based on bottom sheet position
+  const animatedStyle = useAnimatedStyle(() => {
+    // Height: animates from 0 to 288px across full range
+    const height = interpolate(
+      animatedIndex.value,
+      [0, 1],
+      [0, 288],
+      'clamp'
+    );
+
+    // Opacity: starts fading in at 30% of expansion
+    const opacity = interpolate(
+      animatedIndex.value,
+      [0, 0.3, 1], // Start fading in at 30% of expansion
+      [0, 0, 1],   // From invisible to fully visible
+      'clamp'
+    );
+
+    return {
+      height,
+      opacity,
+    };
+  });
+
+  return (
+    <Animated.View
+      style={[styles.animatedMessagesSection, animatedStyle]}
+      pointerEvents="box-none" // Allow touches to pass through when transparent
+    >
+      {/* Header */}
+      <View style={styles.header}>
+        <Ionicons
+          name="chevron-down"
+          size={24}
+          color={textDark}
+          onPress={() => onExpandChange(false)}
+        />
+      </View>
+
+      {/* Messages */}
+      <FlatList
+        ref={flatListRef}
+        data={messages}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => <MessageBubble message={item} />}
+        contentContainerStyle={styles.messagesList}
+        showsVerticalScrollIndicator={true}
+        style={styles.messagesContainer}
+        keyboardShouldPersistTaps="always"
+      />
+    </Animated.View>
+  );
 }
 
 export default function ConversationDrawer({
@@ -35,7 +101,7 @@ export default function ConversationDrawer({
   const backgroundColor = useThemeColor({ light: '#FFFFFF', dark: '#151718' }, 'background');
   const textDark = useThemeColor({ light: '#1F2937', dark: '#F9FAFB' }, 'textDark');
 
-  // Snap points: collapsed (auto-size for input + prompts), expanded (80% of screen)
+  // Snap points: collapsed (200px for input + prompts), expanded (90% of screen)
   const snapPoints = useMemo(() => ['90%'], []);
 
   // Sync isExpanded prop with bottom sheet snap position
@@ -96,31 +162,13 @@ export default function ConversationDrawer({
       android_keyboardInputMode="adjustPan"
     >
       <BottomSheetView style={styles.contentContainer}>
-        {/* Header - only visible when expanded */}
-        {isExpanded && (
-          <View style={styles.header}>
-            <Ionicons
-              name="chevron-down"
-              size={24}
-              color={textDark}
-              onPress={() => onExpandChange(false)}
-            />
-          </View>
-        )}
-
-        {/* Messages - only visible when expanded */}
-        {isExpanded && (
-          <FlatList
-            ref={flatListRef}
-            data={messages}
-            keyExtractor={(item) => item.id}
-            renderItem={({ item }) => <MessageBubble message={item} />}
-            contentContainerStyle={styles.messagesList}
-            showsVerticalScrollIndicator={true}
-            style={styles.messagesContainer}
-            keyboardShouldPersistTaps="always"
-          />
-        )}
+        {/* Animated Messages Section - fades in/out smoothly */}
+        <AnimatedMessagesSection
+          messages={messages}
+          flatListRef={flatListRef}
+          textDark={textDark}
+          onExpandChange={onExpandChange}
+        />
 
         {/* Always visible section */}
         <View style={styles.fixedSection}>
@@ -165,6 +213,10 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     flex: 1,
+  },
+  animatedMessagesSection: {
+    flex: 1,
+    overflow: 'hidden',
   },
   header: {
     flexDirection: 'row',
