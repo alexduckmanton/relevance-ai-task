@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { View, TextInput, TouchableOpacity, StyleSheet, Platform, Keyboard, TouchableWithoutFeedback } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
@@ -9,6 +9,7 @@ interface InputSectionProps {
   onChange: (value: string) => void;
   onSubmit: () => void;
   onFocus: () => void;
+  shouldFocus?: boolean;
 }
 
 export default function InputSection({
@@ -16,6 +17,7 @@ export default function InputSection({
   onChange,
   onSubmit,
   onFocus,
+  shouldFocus,
 }: InputSectionProps) {
   const inputRef = useRef<TextInput>(null);
   const textDark = useThemeColor({ light: '#1F2937', dark: '#F9FAFB' }, 'textDark');
@@ -23,6 +25,14 @@ export default function InputSection({
   const bgLight = useThemeColor({ light: '#F3F4F6', dark: '#374151' }, 'bgLight');
   const primaryTeal = useThemeColor({ light: '#0F766E', dark: '#14B8A6' }, 'primaryTeal');
   const borderColor = useThemeColor({ light: '#E5E7EB', dark: '#4B5563' }, 'bgActive');
+
+  useEffect(() => {
+    if (shouldFocus === true) {
+      inputRef.current?.focus();
+    } else if (shouldFocus === false) {
+      inputRef.current?.blur();
+    }
+  }, [shouldFocus]);
 
   const handleSubmit = () => {
     if (value.trim()) {

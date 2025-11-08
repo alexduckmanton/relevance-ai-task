@@ -36,7 +36,7 @@ export default function ConversationDrawer({
   const textDark = useThemeColor({ light: '#1F2937', dark: '#F9FAFB' }, 'textDark');
 
   // Snap points: collapsed (auto-size for input + prompts), expanded (80% of screen)
-  const snapPoints = useMemo(() => ['80%'], []);
+  const snapPoints = useMemo(() => ['90%'], []);
 
   // Sync isExpanded prop with bottom sheet snap position
   useEffect(() => {
@@ -129,6 +129,7 @@ export default function ConversationDrawer({
             onChange={onInputChange}
             onSubmit={onSubmit}
             onFocus={onInputFocus}
+            shouldFocus={isExpanded}
           />
         </View>
       </BottomSheetView>
@@ -179,12 +180,13 @@ const styles = StyleSheet.create({
   },
   messagesContainer: {
     flex: 1,
+    height: 288,
   },
   messagesList: {
-    paddingVertical: 0,
+    paddingBottom: 16,
     flexGrow: 1,
   },
   fixedSection: {
-    paddingBottom: 8,
+    paddingBottom: 40,
   },
 });
