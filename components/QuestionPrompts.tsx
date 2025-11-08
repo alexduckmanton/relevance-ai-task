@@ -65,7 +65,7 @@ export default function QuestionPrompts({ onSelectPrompt }: QuestionPromptsProps
 const styles = StyleSheet.create({
   container: {
     position: 'relative',
-    paddingVertical: 8,
+    paddingVertical: 0,
   },
   scrollContent: {
     paddingHorizontal: 16,
