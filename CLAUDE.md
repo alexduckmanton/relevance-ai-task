@@ -10,7 +10,7 @@ This is an **iOS Learning Assistant** built with React Native and Expo. The proj
 - Question prompts for learning assistance
 - Chat-style messaging UI
 
-**Important**: The `Reference code/` directory contains a complete Vite/React web implementation that serves as the **design specification**. Reference this when implementing mobile features.
+**Important**: The `Reference code/` directory contains a complete Vite/React web implementation that serves as the **design specification**. Reference this when implementing mobile features. **Do not make changes to this folder.**
 
 ## Development Commands
 
