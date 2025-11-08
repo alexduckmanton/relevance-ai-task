@@ -44,6 +44,7 @@ export default function QuestionPrompts({ onSelectPrompt }: QuestionPromptsProps
         contentContainerStyle={styles.scrollContent}
         onScroll={handleScroll}
         scrollEventThrottle={16}
+        keyboardShouldPersistTaps="always"
       >
         {prompts.map((prompt, index) => (
           <TouchableOpacity

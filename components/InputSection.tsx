@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import { View, TextInput, TouchableOpacity, StyleSheet, Platform, Keyboard, TouchableWithoutFeedback } from 'react-native';
+import { View, TextInput, TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { useThemeColor } from '@/hooks/use-theme-color';
@@ -46,52 +46,46 @@ export default function InputSection({
     console.log('Microphone pressed');
   };
 
-  const handleOutsidePress = () => {
-    Keyboard.dismiss();
-  };
-
   return (
-    <TouchableWithoutFeedback onPress={handleOutsidePress}>
-      <View style={styles.container}>
-        <View style={[styles.inputWrapper, { backgroundColor: bgLight, borderColor }]}>
-          <TextInput
-            ref={inputRef}
-            style={[styles.input, { color: textDark }]}
-            value={value}
-            onChangeText={onChange}
-            onFocus={onFocus}
-            onSubmitEditing={handleSubmit}
-            placeholder="Ask anything..."
-            placeholderTextColor={textMuted}
-            returnKeyType="send"
-            multiline
-            maxLength={500}
-          />
+    <View style={styles.container}>
+      <View style={[styles.inputWrapper, { backgroundColor: bgLight, borderColor }]}>
+        <TextInput
+          ref={inputRef}
+          style={[styles.input, { color: textDark }]}
+          value={value}
+          onChangeText={onChange}
+          onFocus={onFocus}
+          onSubmitEditing={handleSubmit}
+          placeholder="Ask anything..."
+          placeholderTextColor={textMuted}
+          returnKeyType="send"
+          multiline
+          maxLength={500}
+        />
 
-          <View style={styles.buttonsContainer}>
-            {/* Microphone button - always visible */}
+        <View style={styles.buttonsContainer}>
+          {/* Microphone button - always visible */}
+          <TouchableOpacity
+            style={styles.iconButton}
+            onPress={handleMicPress}
+            activeOpacity={0.7}
+          >
+            <Ionicons name="mic-outline" size={20} color={textMuted} />
+          </TouchableOpacity>
+
+          {/* Send button - only visible when text is entered */}
+          {value.trim() && (
             <TouchableOpacity
-              style={styles.iconButton}
-              onPress={handleMicPress}
-              activeOpacity={0.7}
+              style={[styles.sendButton, { backgroundColor: primaryTeal }]}
+              onPress={handleSubmit}
+              activeOpacity={0.8}
             >
-              <Ionicons name="mic-outline" size={20} color={textMuted} />
+              <Ionicons name="send" size={18} color="white" />
             </TouchableOpacity>
-
-            {/* Send button - only visible when text is entered */}
-            {value.trim() && (
-              <TouchableOpacity
-                style={[styles.sendButton, { backgroundColor: primaryTeal }]}
-                onPress={handleSubmit}
-                activeOpacity={0.8}
-              >
-                <Ionicons name="send" size={18} color="white" />
-              </TouchableOpacity>
-            )}
-          </View>
+          )}
         </View>
       </View>
-    </TouchableWithoutFeedback>
+    </View>
   );
 }
 

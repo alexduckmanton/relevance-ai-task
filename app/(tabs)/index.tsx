@@ -103,9 +103,6 @@ export default function HomeScreen() {
             <VideoPlayer
               isPlaying={isPlaying}
               onPlayPause={handlePlayPause}
-              currentTime="2:34"
-              totalTime="15:42"
-              progress={16}
             />
 
             {/* Video Info */}

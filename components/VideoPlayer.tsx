@@ -7,9 +7,6 @@ import { Ionicons } from '@expo/vector-icons';
 interface VideoPlayerProps {
   isPlaying: boolean;
   onPlayPause: () => void;
-  currentTime?: string;
-  totalTime?: string;
-  progress?: number;
 }
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -18,12 +15,12 @@ const VIDEO_HEIGHT = (SCREEN_WIDTH * 9) / 16; // 16:9 aspect ratio
 export default function VideoPlayer({
   isPlaying,
   onPlayPause,
-  currentTime = '0:00',
-  totalTime = '0:00',
-  progress = 0,
 }: VideoPlayerProps) {
   const videoRef = useRef<Video>(null);
   const [showControls, setShowControls] = useState(true);
+  const [videoProgress, setVideoProgress] = useState(0);
+  const [videoCurrentTime, setVideoCurrentTime] = useState('0:00');
+  const [videoTotalTime, setVideoTotalTime] = useState('0:00');
 
   // Sync video playback with isPlaying prop
   React.useEffect(() => {
@@ -36,6 +33,30 @@ export default function VideoPlayer({
     }
   }, [isPlaying]);
 
+  // Format milliseconds to MM:SS
+  const formatTime = (millis: number) => {
+    const totalSeconds = Math.floor(millis / 1000);
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  };
+
+  // Handle video playback status updates
+  const handlePlaybackStatusUpdate = (status: AVPlaybackStatus) => {
+    if (status.isLoaded) {
+      // Update current time
+      setVideoCurrentTime(formatTime(status.positionMillis));
+
+      // Update total duration
+      if (status.durationMillis) {
+        setVideoTotalTime(formatTime(status.durationMillis));
+        // Update progress percentage
+        const progressPercent = (status.positionMillis / status.durationMillis) * 100;
+        setVideoProgress(progressPercent);
+      }
+    }
+  };
+
   const handleVideoPress = () => {
     setShowControls(true);
     // Hide controls after 3 seconds
@@ -44,18 +65,16 @@ export default function VideoPlayer({
 
   return (
     <View style={styles.container}>
-      {/* Video Placeholder - Using a gradient background with emoji */}
-      <View style={styles.videoPlaceholder}>
-        <LinearGradient
-          colors={['#1e293b', '#0f172a']}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.gradient}
-        >
-          <Text style={styles.placeholderEmoji}>📚</Text>
-          <Text style={styles.placeholderText}>Video Placeholder</Text>
-        </LinearGradient>
-      </View>
+      {/* Video Component */}
+      <Video
+        ref={videoRef}
+        source={require('@/assets/videos/Lesson.mp4')}
+        style={styles.video}
+        resizeMode={ResizeMode.CONTAIN}
+        shouldPlay={false}
+        isLooping={false}
+        onPlaybackStatusUpdate={handlePlaybackStatusUpdate}
+      />
 
       {/* Controls Overlay */}
       <TouchableOpacity
@@ -88,7 +107,7 @@ export default function VideoPlayer({
             <View style={styles.progressBarContainer}>
               <View style={styles.progressBarBackground}>
                 <View
-                  style={[styles.progressBarFill, { width: `${progress}%` }]}
+                  style={[styles.progressBarFill, { width: `${videoProgress}%` }]}
                 />
               </View>
             </View>
@@ -96,7 +115,7 @@ export default function VideoPlayer({
             {/* Time and Fullscreen */}
             <View style={styles.controlsRow}>
               <Text style={styles.timeText}>
-                {currentTime} / {totalTime}
+                {videoCurrentTime} / {videoTotalTime}
               </Text>
               <TouchableOpacity style={styles.fullscreenButton}>
                 <Ionicons name="expand" size={20} color="white" />
@@ -116,24 +135,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#000',
     position: 'relative',
   },
-  videoPlaceholder: {
+  video: {
     width: '100%',
     height: '100%',
-  },
-  gradient: {
-    width: '100%',
-    height: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  placeholderEmoji: {
-    fontSize: 64,
-    marginBottom: 8,
-  },
-  placeholderText: {
-    color: 'white',
-    fontSize: 16,
-    opacity: 0.7,
   },
   controlsOverlay: {
     ...StyleSheet.absoluteFillObject,
