@@ -1,6 +1,6 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, TouchableOpacity, Text, Dimensions } from 'react-native';
-import { Video, ResizeMode, AVPlaybackStatus } from 'expo-av';
+import { VideoView, useVideoPlayer } from 'expo-video';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -16,46 +16,56 @@ export default function VideoPlayer({
   isPlaying,
   onPlayPause,
 }: VideoPlayerProps) {
-  const videoRef = useRef<Video>(null);
   const [showControls, setShowControls] = useState(true);
   const [videoProgress, setVideoProgress] = useState(0);
   const [videoCurrentTime, setVideoCurrentTime] = useState('0:00');
   const [videoTotalTime, setVideoTotalTime] = useState('0:00');
 
+  // Create video player instance
+  const player = useVideoPlayer(require('@/assets/videos/Lesson.mp4'), (player) => {
+    player.loop = false;
+    player.play();
+  });
+
   // Sync video playback with isPlaying prop
-  React.useEffect(() => {
-    if (videoRef.current) {
-      if (isPlaying) {
-        videoRef.current.playAsync();
-      } else {
-        videoRef.current.pauseAsync();
-      }
+  useEffect(() => {
+    if (isPlaying) {
+      player.play();
+    } else {
+      player.pause();
     }
-  }, [isPlaying]);
+  }, [isPlaying, player]);
 
-  // Format milliseconds to MM:SS
-  const formatTime = (millis: number) => {
-    const totalSeconds = Math.floor(millis / 1000);
+  // Format seconds to MM:SS
+  const formatTime = (seconds: number) => {
+    const totalSeconds = Math.floor(seconds);
     const minutes = Math.floor(totalSeconds / 60);
-    const seconds = totalSeconds % 60;
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    const secs = totalSeconds % 60;
+    return `${minutes}:${secs.toString().padStart(2, '0')}`;
   };
 
-  // Handle video playback status updates
-  const handlePlaybackStatusUpdate = (status: AVPlaybackStatus) => {
-    if (status.isLoaded) {
-      // Update current time
-      setVideoCurrentTime(formatTime(status.positionMillis));
+  // Update video progress and time displays
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (player) {
+        const currentTime = player.currentTime || 0;
+        const duration = player.duration || 0;
 
-      // Update total duration
-      if (status.durationMillis) {
-        setVideoTotalTime(formatTime(status.durationMillis));
-        // Update progress percentage
-        const progressPercent = (status.positionMillis / status.durationMillis) * 100;
-        setVideoProgress(progressPercent);
+        // Update current time
+        setVideoCurrentTime(formatTime(currentTime));
+
+        // Update total duration
+        if (duration > 0) {
+          setVideoTotalTime(formatTime(duration));
+          // Update progress percentage
+          const progressPercent = (currentTime / duration) * 100;
+          setVideoProgress(progressPercent);
+        }
       }
-    }
-  };
+    }, 100); // Update every 100ms for smooth progress bar
+
+    return () => clearInterval(interval);
+  }, [player]);
 
   const handleVideoPress = () => {
     setShowControls(true);
@@ -66,14 +76,11 @@ export default function VideoPlayer({
   return (
     <View style={styles.container}>
       {/* Video Component */}
-      <Video
-        ref={videoRef}
-        source={require('@/assets/videos/Lesson.mp4')}
+      <VideoView
+        player={player}
         style={styles.video}
-        resizeMode={ResizeMode.CONTAIN}
-        shouldPlay={false}
-        isLooping={false}
-        onPlaybackStatusUpdate={handlePlaybackStatusUpdate}
+        contentFit="contain"
+        nativeControls={false}
       />
 
       {/* Controls Overlay */}
