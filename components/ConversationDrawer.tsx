@@ -2,7 +2,7 @@ import { useThemeColor } from '@/hooks/use-theme-color';
 import { Ionicons } from '@expo/vector-icons';
 import type { BottomSheetBackdropProps } from '@gorhom/bottom-sheet';
 import BottomSheet, { BottomSheetBackdrop, BottomSheetView, useBottomSheet } from '@gorhom/bottom-sheet';
-import React, { useEffect, useMemo, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
 import Animated, { interpolate, useAnimatedStyle } from 'react-native-reanimated';
 import InputSection from './InputSection';
@@ -113,9 +113,26 @@ export default function ConversationDrawer({
     }
   }, [isExpanded]);
 
-  const handleSheetChange = (index: number) => {
-    onExpandChange(index === 1);
-  };
+  // Fires immediately when user releases finger (before animation starts)
+  // This enables keyboard to respond during animation, not after
+  const handleAnimate = useCallback(
+    (fromIndex: number, toIndex: number) => {
+      onExpandChange(toIndex === 1);
+    },
+    [onExpandChange]
+  );
+
+  // Fires after animation completes - safety net to ensure final state is correct
+  const handleSheetChange = useCallback(
+    (index: number) => {
+      const shouldExpand = index === 1;
+      // Only update if state differs (usually onAnimate already handled it)
+      if (isExpanded !== shouldExpand) {
+        onExpandChange(shouldExpand);
+      }
+    },
+    [isExpanded, onExpandChange]
+  );
 
   // Scroll to bottom when new messages arrive
   useEffect(() => {
@@ -151,6 +168,7 @@ export default function ConversationDrawer({
       ref={bottomSheetRef}
       index={0}
       snapPoints={snapPoints}
+      onAnimate={handleAnimate}
       onChange={handleSheetChange}
       enablePanDownToClose={false}
       backdropComponent={renderBackdrop}
