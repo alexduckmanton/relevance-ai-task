@@ -3,7 +3,7 @@ import { Ionicons } from '@expo/vector-icons';
 import type { BottomSheetBackdropProps } from '@gorhom/bottom-sheet';
 import BottomSheet, { BottomSheetBackdrop, BottomSheetView } from '@gorhom/bottom-sheet';
 import React, { useEffect, useMemo, useRef } from 'react';
-import { FlatList, StyleSheet, Text, View } from 'react-native';
+import { FlatList, StyleSheet, View } from 'react-native';
 import InputSection from './InputSection';
 import MessageBubble, { Message } from './MessageBubble';
 import QuestionPrompts from './QuestionPrompts';
@@ -36,7 +36,7 @@ export default function ConversationDrawer({
   const textDark = useThemeColor({ light: '#1F2937', dark: '#F9FAFB' }, 'textDark');
 
   // Snap points: collapsed (auto-size for input + prompts), expanded (80% of screen)
-  const snapPoints = useMemo(() => ['25%', '80%'], []);
+  const snapPoints = useMemo(() => ['80%'], []);
 
   // Sync isExpanded prop with bottom sheet snap position
   useEffect(() => {
@@ -91,14 +91,14 @@ export default function ConversationDrawer({
       handleComponent={renderHandle}
       backgroundStyle={[styles.sheetBackground, { backgroundColor }]}
       style={styles.sheet}
+      keyboardBehavior="extend"
+      keyboardBlurBehavior="restore"
+      android_keyboardInputMode="adjustPan"
     >
       <BottomSheetView style={styles.contentContainer}>
         {/* Header - only visible when expanded */}
         {isExpanded && (
           <View style={styles.header}>
-            <Text style={[styles.headerTitle, { color: textDark }]}>
-              Conversation
-            </Text>
             <Ionicons
               name="chevron-down"
               size={24}
@@ -148,8 +148,8 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   sheetBackground: {
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
+    borderTopLeftRadius: 32,
+    borderTopRightRadius: 32,
   },
   handleContainer: {
     alignItems: 'center',
@@ -170,8 +170,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
+    position: 'absolute',
+    zIndex: 999
   },
   headerTitle: {
     fontSize: 18,
@@ -181,7 +181,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   messagesList: {
-    paddingVertical: 16,
+    paddingVertical: 0,
     flexGrow: 1,
   },
   fixedSection: {

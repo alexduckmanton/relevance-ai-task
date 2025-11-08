@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { useThemeColor } from '@/hooks/use-theme-color';
-import VideoPlayer from '@/components/VideoPlayer';
-import VideoInfo from '@/components/VideoInfo';
 import ActionButtons from '@/components/ActionButtons';
 import ConversationDrawer from '@/components/ConversationDrawer';
 import type { Message } from '@/components/MessageBubble';
+import VideoInfo from '@/components/VideoInfo';
+import VideoPlayer from '@/components/VideoPlayer';
+import { useThemeColor } from '@/hooks/use-theme-color';
+import React, { useState } from 'react';
+import { ScrollView, StyleSheet, View } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function HomeScreen() {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -17,27 +17,27 @@ export default function HomeScreen() {
     {
       id: '1',
       type: 'user',
-      text: 'Can you explain the main concept from this video?',
+      text: 'What does that mean?',
       timestamp: '2:30 PM',
     },
     {
       id: '2',
       type: 'ai',
-      text: 'Of course! The video covers the fundamentals of React hooks. The main concept is that hooks allow you to use state and other React features without writing a class component.',
+      text: 'A derivative measures how fast something is changing at a specific moment - like the instantaneous speed of a car or the slope of a curve at a single point.',
       timestamp: '2:30 PM',
     },
-    {
-      id: '3',
-      type: 'user',
-      text: 'What are the most important hooks to know?',
-      timestamp: '2:31 PM',
-    },
-    {
-      id: '4',
-      type: 'ai',
-      text: 'The most essential hooks are useState for managing state, useEffect for side effects, and useContext for accessing context. These three will cover most of your needs when starting out!',
-      timestamp: '2:31 PM',
-    },
+    // {
+    //   id: '3',
+    //   type: 'user',
+    //   text: 'What are the most important hooks to know?',
+    //   timestamp: '2:31 PM',
+    // },
+    // {
+    //   id: '4',
+    //   type: 'ai',
+    //   text: 'The most essential hooks are useState for managing state, useEffect for side effects, and useContext for accessing context. These three will cover most of your needs when starting out!',
+    //   timestamp: '2:31 PM',
+    // },
   ]);
 
   const bgPage = useThemeColor({ light: '#F9FAFB', dark: '#1F2937' }, 'bgPage');
@@ -93,17 +93,12 @@ export default function HomeScreen() {
   return (
     <GestureHandlerRootView style={styles.gestureRoot}>
       <SafeAreaView style={[styles.safeArea, { backgroundColor: bgPage }]} edges={['top']}>
-        <KeyboardAvoidingView
-          style={styles.container}
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          keyboardVerticalOffset={0}
+        {/* Main Content */}
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
         >
-          {/* Main Content */}
-          <ScrollView
-            style={styles.scrollView}
-            contentContainerStyle={styles.scrollContent}
-            showsVerticalScrollIndicator={false}
-          >
             {/* Video Player */}
             <VideoPlayer
               isPlaying={isPlaying}
@@ -115,8 +110,8 @@ export default function HomeScreen() {
 
             {/* Video Info */}
             <VideoInfo
-              title="Introduction to React Hooks - Complete Guide for Beginners"
-              description="Learn everything you need to know about React Hooks in this comprehensive tutorial. We'll cover useState, useEffect, useContext, and more advanced hooks. Perfect for developers who want to understand modern React development patterns and best practices."
+              title="Introduction to Calculus: Understanding Derivatives"
+              description="Learn the fundamental concepts of derivatives in calculus. This comprehensive tutorial covers the basic principles, real-world applications, and step-by-step examples to help you master this essential mathematical concept. Perfect for high school and college students."
             />
 
             {/* Action Buttons */}
@@ -126,18 +121,17 @@ export default function HomeScreen() {
             <View style={styles.bottomSpacer} />
           </ScrollView>
 
-          {/* Conversation Drawer */}
-          <ConversationDrawer
-            messages={messages}
-            inputValue={inputValue}
-            onInputChange={setInputValue}
-            onSubmit={handleSubmitQuestion}
-            onInputFocus={handleInputFocus}
-            onSelectPrompt={handleSelectPrompt}
-            isExpanded={isDrawerExpanded}
-            onExpandChange={setIsDrawerExpanded}
-          />
-        </KeyboardAvoidingView>
+        {/* Conversation Drawer */}
+        <ConversationDrawer
+          messages={messages}
+          inputValue={inputValue}
+          onInputChange={setInputValue}
+          onSubmit={handleSubmitQuestion}
+          onInputFocus={handleInputFocus}
+          onSelectPrompt={handleSelectPrompt}
+          isExpanded={isDrawerExpanded}
+          onExpandChange={setIsDrawerExpanded}
+        />
       </SafeAreaView>
     </GestureHandlerRootView>
   );

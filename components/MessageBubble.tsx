@@ -1,6 +1,6 @@
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
 import { useThemeColor } from '@/hooks/use-theme-color';
+import React from 'react';
+import { StyleSheet, Text, View } from 'react-native';
 
 export interface Message {
   id: string;
@@ -35,14 +35,6 @@ export default function MessageBubble({ message }: MessageBubbleProps) {
       >
         <Text style={[styles.messageText, { color: textColor }]}>
           {message.text}
-        </Text>
-        <Text
-          style={[
-            styles.timestamp,
-            { color: isUser ? 'rgba(255,255,255,0.7)' : textMuted },
-          ]}
-        >
-          {message.timestamp}
         </Text>
       </View>
     </View>
