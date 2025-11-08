@@ -1,8 +1,7 @@
-import React, { useState, useRef } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet, NativeScrollEvent, NativeSyntheticEvent } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import * as Haptics from 'expo-haptics';
 import { useThemeColor } from '@/hooks/use-theme-color';
+import * as Haptics from 'expo-haptics';
+import React, { useRef, useState } from 'react';
+import { NativeScrollEvent, NativeSyntheticEvent, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 interface QuestionPromptsProps {
   onSelectPrompt: (prompt: string) => void;
@@ -59,17 +58,6 @@ export default function QuestionPrompts({ onSelectPrompt }: QuestionPromptsProps
           </TouchableOpacity>
         ))}
       </ScrollView>
-
-      {/* Fade gradient on the right */}
-      {showFade && (
-        <LinearGradient
-          colors={['transparent', bgPage]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 0 }}
-          style={styles.fadeGradient}
-          pointerEvents="none"
-        />
-      )}
     </View>
   );
 }

@@ -1,12 +1,12 @@
-import React, { useRef, useMemo, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList } from 'react-native';
-import BottomSheet, { BottomSheetBackdrop, BottomSheetView } from '@gorhom/bottom-sheet';
+import { useThemeColor } from '@/hooks/use-theme-color';
 import { Ionicons } from '@expo/vector-icons';
+import type { BottomSheetBackdropProps } from '@gorhom/bottom-sheet';
+import BottomSheet, { BottomSheetBackdrop, BottomSheetView } from '@gorhom/bottom-sheet';
+import React, { useEffect, useMemo, useRef } from 'react';
+import { FlatList, StyleSheet, Text, View } from 'react-native';
+import InputSection from './InputSection';
 import MessageBubble, { Message } from './MessageBubble';
 import QuestionPrompts from './QuestionPrompts';
-import InputSection from './InputSection';
-import { useThemeColor } from '@/hooks/use-theme-color';
-import type { BottomSheetBackdropProps } from '@gorhom/bottom-sheet';
 
 interface ConversationDrawerProps {
   messages: Message[];
