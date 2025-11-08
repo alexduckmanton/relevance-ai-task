@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, TouchableOpacity, Text, Dimensions } from 'react-native';
-import { VideoView, useVideoPlayer } from 'expo-video';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
+import { VideoView, useVideoPlayer } from 'expo-video';
+import React, { useEffect, useState } from 'react';
+import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 interface VideoPlayerProps {
   isPlaying: boolean;
@@ -102,7 +102,7 @@ export default function VideoPlayer({
             >
               <Ionicons
                 name={isPlaying ? 'pause' : 'play'}
-                size={48}
+                size={40}
                 color="white"
               />
             </TouchableOpacity>
@@ -110,15 +110,6 @@ export default function VideoPlayer({
 
           {/* Bottom Controls */}
           <View style={styles.bottomControls}>
-            {/* Progress Bar */}
-            <View style={styles.progressBarContainer}>
-              <View style={styles.progressBarBackground}>
-                <View
-                  style={[styles.progressBarFill, { width: `${videoProgress}%` }]}
-                />
-              </View>
-            </View>
-
             {/* Time and Fullscreen */}
             <View style={styles.controlsRow}>
               <Text style={styles.timeText}>
@@ -127,6 +118,15 @@ export default function VideoPlayer({
               <TouchableOpacity style={styles.fullscreenButton}>
                 <Ionicons name="expand" size={20} color="white" />
               </TouchableOpacity>
+            </View>
+
+            {/* Progress Bar */}
+            <View style={styles.progressBarContainer}>
+              <View style={styles.progressBarBackground}>
+                <View
+                  style={[styles.progressBarFill, { width: `${videoProgress}%` }]}
+                />
+              </View>
             </View>
           </View>
         </LinearGradient>
@@ -172,7 +172,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   progressBarContainer: {
-    marginBottom: 8,
+    marginTop: 8,
   },
   progressBarBackground: {
     height: 4,
