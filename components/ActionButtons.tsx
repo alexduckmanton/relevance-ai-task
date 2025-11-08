@@ -1,8 +1,8 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { useThemeColor } from '@/hooks/use-theme-color';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
-import { useThemeColor } from '@/hooks/use-theme-color';
+import React from 'react';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 interface ActionButton {
   icon: keyof typeof Ionicons.glyphMap;
@@ -11,9 +11,9 @@ interface ActionButton {
 }
 
 const actions: ActionButton[] = [
-  { icon: 'bookmark-outline', label: 'Save for later' },
-  { icon: 'card-outline', label: 'Make flashcards' },
-  { icon: 'document-text-outline', label: 'Study notes' },
+  { icon: 'bookmark-outline', label: 'Bookmark' },
+  { icon: 'document-text-outline', label: 'Summary' },
+  { icon: 'card-outline', label: 'Flashcards' },
   { icon: 'help-circle-outline', label: 'Quiz me' },
 ];
 
