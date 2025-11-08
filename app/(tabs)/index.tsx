@@ -56,18 +56,19 @@ export default function HomeScreen() {
     }
   };
 
-  const handleSubmitQuestion = () => {
-    if (!inputValue.trim()) return;
+  // Shared logic for adding messages to conversation
+  const addMessageToConversation = (text: string) => {
+    const timestamp = new Date().toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+    });
 
     // Create user message
     const newUserMessage: Message = {
       id: Date.now().toString(),
       type: 'user',
-      text: inputValue,
-      timestamp: new Date().toLocaleTimeString('en-US', {
-        hour: 'numeric',
-        minute: '2-digit',
-      }),
+      text: text,
+      timestamp: timestamp,
     };
 
     // Create AI response (mock)
@@ -75,19 +76,31 @@ export default function HomeScreen() {
       id: (Date.now() + 1).toString(),
       type: 'ai',
       text: 'Great question! Let me help you understand that better. This is a mock response that demonstrates the conversation flow.',
-      timestamp: new Date().toLocaleTimeString('en-US', {
-        hour: 'numeric',
-        minute: '2-digit',
-      }),
+      timestamp: timestamp,
     };
 
-    setMessages([...messages, newUserMessage, aiResponse]);
-    setInputValue('');
-    setIsDrawerExpanded(true); // Auto-expand drawer on submit
+    // Update messages with functional update to avoid stale closure
+    setMessages((prevMessages) => [...prevMessages, newUserMessage, aiResponse]);
+
+    // Auto-expand drawer to show conversation
+    setIsDrawerExpanded(true);
+
+    // Pause video when message is submitted
+    if (isPlaying) {
+      setIsPlaying(false);
+    }
+  };
+
+  const handleSubmitQuestion = () => {
+    if (!inputValue.trim()) return;
+
+    addMessageToConversation(inputValue);
+    setInputValue(''); // Clear input after submit
   };
 
   const handleSelectPrompt = (prompt: string) => {
-    setInputValue(prompt);
+    // Auto-submit the prompt immediately (don't populate input field)
+    addMessageToConversation(prompt);
   };
 
   return (
