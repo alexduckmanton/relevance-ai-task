@@ -1,98 +1,165 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
-
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+import React, { useState } from 'react';
+import { View, StyleSheet, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { useThemeColor } from '@/hooks/use-theme-color';
+import VideoPlayer from '@/components/VideoPlayer';
+import VideoInfo from '@/components/VideoInfo';
+import ActionButtons from '@/components/ActionButtons';
+import ConversationDrawer from '@/components/ConversationDrawer';
+import type { Message } from '@/components/MessageBubble';
 
 export default function HomeScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [inputValue, setInputValue] = useState('');
+  const [isDrawerExpanded, setIsDrawerExpanded] = useState(false);
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      id: '1',
+      type: 'user',
+      text: 'Can you explain the main concept from this video?',
+      timestamp: '2:30 PM',
+    },
+    {
+      id: '2',
+      type: 'ai',
+      text: 'Of course! The video covers the fundamentals of React hooks. The main concept is that hooks allow you to use state and other React features without writing a class component.',
+      timestamp: '2:30 PM',
+    },
+    {
+      id: '3',
+      type: 'user',
+      text: 'What are the most important hooks to know?',
+      timestamp: '2:31 PM',
+    },
+    {
+      id: '4',
+      type: 'ai',
+      text: 'The most essential hooks are useState for managing state, useEffect for side effects, and useContext for accessing context. These three will cover most of your needs when starting out!',
+      timestamp: '2:31 PM',
+    },
+  ]);
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+  const bgPage = useThemeColor({ light: '#F9FAFB', dark: '#1F2937' }, 'bgPage');
+
+  const handlePlayPause = () => {
+    setIsPlaying(!isPlaying);
+  };
+
+  const handleInputFocus = () => {
+    if (isPlaying) {
+      setIsPlaying(false);
+    }
+    // Auto-expand drawer when focusing input
+    if (!isDrawerExpanded) {
+      setIsDrawerExpanded(true);
+    }
+  };
+
+  const handleSubmitQuestion = () => {
+    if (!inputValue.trim()) return;
+
+    // Create user message
+    const newUserMessage: Message = {
+      id: Date.now().toString(),
+      type: 'user',
+      text: inputValue,
+      timestamp: new Date().toLocaleTimeString('en-US', {
+        hour: 'numeric',
+        minute: '2-digit',
+      }),
+    };
+
+    // Create AI response (mock)
+    const aiResponse: Message = {
+      id: (Date.now() + 1).toString(),
+      type: 'ai',
+      text: 'Great question! Let me help you understand that better. This is a mock response that demonstrates the conversation flow.',
+      timestamp: new Date().toLocaleTimeString('en-US', {
+        hour: 'numeric',
+        minute: '2-digit',
+      }),
+    };
+
+    setMessages([...messages, newUserMessage, aiResponse]);
+    setInputValue('');
+    setIsDrawerExpanded(true); // Auto-expand drawer on submit
+  };
+
+  const handleSelectPrompt = (prompt: string) => {
+    setInputValue(prompt);
+  };
+
+  return (
+    <GestureHandlerRootView style={styles.gestureRoot}>
+      <SafeAreaView style={[styles.safeArea, { backgroundColor: bgPage }]} edges={['top']}>
+        <KeyboardAvoidingView
+          style={styles.container}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          keyboardVerticalOffset={0}
+        >
+          {/* Main Content */}
+          <ScrollView
+            style={styles.scrollView}
+            contentContainerStyle={styles.scrollContent}
+            showsVerticalScrollIndicator={false}
+          >
+            {/* Video Player */}
+            <VideoPlayer
+              isPlaying={isPlaying}
+              onPlayPause={handlePlayPause}
+              currentTime="2:34"
+              totalTime="15:42"
+              progress={16}
+            />
+
+            {/* Video Info */}
+            <VideoInfo
+              title="Introduction to React Hooks - Complete Guide for Beginners"
+              description="Learn everything you need to know about React Hooks in this comprehensive tutorial. We'll cover useState, useEffect, useContext, and more advanced hooks. Perfect for developers who want to understand modern React development patterns and best practices."
+            />
+
+            {/* Action Buttons */}
+            <ActionButtons />
+
+            {/* Spacer to prevent content hiding under drawer */}
+            <View style={styles.bottomSpacer} />
+          </ScrollView>
+
+          {/* Conversation Drawer */}
+          <ConversationDrawer
+            messages={messages}
+            inputValue={inputValue}
+            onInputChange={setInputValue}
+            onSubmit={handleSubmitQuestion}
+            onInputFocus={handleInputFocus}
+            onSelectPrompt={handleSelectPrompt}
+            isExpanded={isDrawerExpanded}
+            onExpandChange={setIsDrawerExpanded}
+          />
+        </KeyboardAvoidingView>
+      </SafeAreaView>
+    </GestureHandlerRootView>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+  gestureRoot: {
+    flex: 1,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  safeArea: {
+    flex: 1,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  container: {
+    flex: 1,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingBottom: 200, // Extra space to prevent content hiding under drawer
+  },
+  bottomSpacer: {
+    height: 100,
   },
 });
