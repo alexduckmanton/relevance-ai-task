@@ -34,10 +34,11 @@ function AnimatedMessagesSection({ messages, flatListRef, textDark, onExpandChan
   // Animate both height and opacity based on bottom sheet position
   const animatedStyle = useAnimatedStyle(() => {
     // Height: animates from 0 to 288px across full range
+    var maxHeight = messages.length > 0 ? 288 : 0;
     const height = interpolate(
       animatedIndex.value,
       [0, 1],
-      [0, 288],
+      [0, maxHeight],
       'clamp'
     );
 
@@ -103,6 +104,7 @@ export default function ConversationDrawer({
 
   // Snap points: collapsed (200px for input + prompts), expanded (90% of screen)
   const snapPoints = useMemo(() => ['90%'], []);
+  const snapPointsEmpty = useMemo(() => ['57%'], []);
 
   // Sync isExpanded prop with bottom sheet snap position
   useEffect(() => {
@@ -176,7 +178,7 @@ export default function ConversationDrawer({
     <BottomSheet
       ref={bottomSheetRef}
       index={0}
-      snapPoints={snapPoints}
+      snapPoints={(messages.length > 0) ? snapPoints : snapPointsEmpty}
       onAnimate={handleAnimate}
       onChange={handleSheetChange}
       enablePanDownToClose={false}
