@@ -1,7 +1,7 @@
 import { useThemeColor } from '@/hooks/use-theme-color';
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
+import Animated, { useAnimatedStyle, useSharedValue, withTiming, Easing } from 'react-native-reanimated';
 
 interface VideoInfoProps {
   title: string;
@@ -40,11 +40,10 @@ export default function VideoInfo({ title, description }: VideoInfoProps) {
 
     const targetHeight = showFullDescription ? collapsedHeight : expandedHeight;
 
-    // Animate to target height with spring (300ms, gentle damping)
-    height.value = withSpring(targetHeight, {
-      damping: 15,
-      stiffness: 150,
-      mass: 1,
+    // Animate to target height with ease-in-out timing
+    height.value = withTiming(targetHeight, {
+      duration: 300,
+      easing: Easing.bezier(0.4, 0, 0.2, 1),
     });
 
     setShowFullDescription(!showFullDescription);

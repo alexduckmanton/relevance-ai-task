@@ -169,7 +169,11 @@ const styles = StyleSheet.create({
     transform: [{ scale: 1 }],
   },
   bottomControls: {
-    paddingHorizontal: 16,
+    padding: 16,
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0
   },
   progressBarContainer: {
     marginTop: 8,
