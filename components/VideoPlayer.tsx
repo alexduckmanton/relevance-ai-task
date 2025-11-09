@@ -113,7 +113,7 @@ export default function VideoPlayer({
             {/* Time and Fullscreen */}
             <View style={styles.controlsRow}>
               <Text style={styles.timeText}>
-                {videoCurrentTime} / {videoTotalTime}
+                {player.currentTime < 0 ? '0:00' : videoCurrentTime} / {videoTotalTime}
               </Text>
               <TouchableOpacity style={styles.fullscreenButton}>
                 <Ionicons name="expand" size={20} color="white" />
