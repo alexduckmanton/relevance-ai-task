@@ -4,7 +4,7 @@ import type { Message } from '@/components/MessageBubble';
 import VideoInfo from '@/components/VideoInfo';
 import VideoPlayer from '@/components/VideoPlayer';
 import { useThemeColor } from '@/hooks/use-theme-color';
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -14,18 +14,18 @@ export default function HomeScreen() {
   const [inputValue, setInputValue] = useState('');
   const [isDrawerExpanded, setIsDrawerExpanded] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
-    {
-      id: '1',
-      type: 'user',
-      text: 'What does that mean?',
-      timestamp: '2:30 PM',
-    },
-    {
-      id: '2',
-      type: 'ai',
-      text: 'A derivative measures how fast something is changing at a specific moment - like the instantaneous speed of a car or the slope of a curve at a single point.',
-      timestamp: '2:30 PM',
-    },
+    // {
+    //   id: '1',
+    //   type: 'user',
+    //   text: 'What does that mean?',
+    //   timestamp: '2:30 PM',
+    // },
+    // {
+    //   id: '2',
+    //   type: 'ai',
+    //   text: 'A derivative measures how fast something is changing at a specific moment - like the instantaneous speed of a car or the slope of a curve at a single point.',
+    //   timestamp: '2:30 PM',
+    // },
     // {
     //   id: '3',
     //   type: 'user',
@@ -39,6 +39,9 @@ export default function HomeScreen() {
     //   timestamp: '2:31 PM',
     // },
   ]);
+
+  // Track pending AI responses for cleanup on unmount
+  const pendingResponsesRef = useRef<Set<string>>(new Set());
 
   const bgPage = useThemeColor({ light: '#F9FAFB', dark: '#1F2937' }, 'bgPage');
 
@@ -71,16 +74,21 @@ export default function HomeScreen() {
       timestamp: timestamp,
     };
 
-    // Create AI response (mock)
-    const aiResponse: Message = {
-      id: (Date.now() + 1).toString(),
+    // Create AI placeholder message with loading state
+    const aiMessageId = (Date.now() + 1).toString();
+    const aiPlaceholder: Message = {
+      id: aiMessageId,
       type: 'ai',
-      text: 'Great question! Let me help you understand that better. This is a mock response that demonstrates the conversation flow.',
+      text: '', // Empty text while loading
       timestamp: timestamp,
+      isLoading: true, // Show typing indicator
     };
 
-    // Update messages with functional update to avoid stale closure
-    setMessages((prevMessages) => [...prevMessages, newUserMessage, aiResponse]);
+    // Add both messages immediately (user message + loading placeholder)
+    setMessages((prevMessages) => [...prevMessages, newUserMessage, aiPlaceholder]);
+
+    // Track this pending response
+    pendingResponsesRef.current.add(aiMessageId);
 
     // Auto-expand drawer to show conversation
     setIsDrawerExpanded(true);
@@ -89,6 +97,30 @@ export default function HomeScreen() {
     if (isPlaying) {
       setIsPlaying(false);
     }
+
+    // Simulate AI response after 2 second delay
+    setTimeout(() => {
+      // Check if this response is still pending (wasn't cancelled)
+      if (!pendingResponsesRef.current.has(aiMessageId)) {
+        return; // Response was cancelled
+      }
+
+      // Remove from pending set
+      pendingResponsesRef.current.delete(aiMessageId);
+
+      // Update the placeholder message with actual response
+      setMessages((prevMessages) =>
+        prevMessages.map((msg) =>
+          msg.id === aiMessageId
+            ? {
+                ...msg,
+                text: 'A derivative measures how fast something is changing at a specific moment - like the instantaneous speed of a car or the slope of a curve at a single point.',
+                isLoading: false, // Remove loading state
+              }
+            : msg
+        )
+      );
+    }, 2000); // 2 second delay
   };
 
   const handleSubmitQuestion = () => {
@@ -102,6 +134,13 @@ export default function HomeScreen() {
     // Auto-submit the prompt immediately (don't populate input field)
     addMessageToConversation(prompt);
   };
+
+  // Cleanup pending responses on unmount
+  useEffect(() => {
+    return () => {
+      pendingResponsesRef.current.clear();
+    };
+  }, []);
 
   return (
     <GestureHandlerRootView style={styles.gestureRoot}>

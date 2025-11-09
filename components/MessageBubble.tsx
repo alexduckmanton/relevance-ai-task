@@ -1,12 +1,14 @@
 import { useThemeColor } from '@/hooks/use-theme-color';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import TypingIndicator from './TypingIndicator';
 
 export interface Message {
   id: string;
   type: 'user' | 'ai';
   text: string;
   timestamp: string;
+  isLoading?: boolean;
 }
 
 interface MessageBubbleProps {
@@ -33,9 +35,13 @@ export default function MessageBubble({ message }: MessageBubbleProps) {
           isUser ? styles.userBubble : styles.aiBubble,
         ]}
       >
-        <Text style={[styles.messageText, { color: textColor }]}>
-          {message.text}
-        </Text>
+        {message.isLoading ? (
+          <TypingIndicator color={textMuted} />
+        ) : (
+          <Text style={[styles.messageText, { color: textColor }]}>
+            {message.text}
+          </Text>
+        )}
       </View>
     </View>
   );
