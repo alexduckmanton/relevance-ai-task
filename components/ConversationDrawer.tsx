@@ -134,14 +134,23 @@ export default function ConversationDrawer({
     [isExpanded, onExpandChange]
   );
 
-  // Scroll to bottom when new messages arrive
+  // Track previous messages reference to detect updates (not just length changes)
+  const prevMessagesRef = useRef<Message[]>(messages);
+
+  // Scroll to bottom when messages change (including when loading completes)
   useEffect(() => {
-    if (messages.length > 0 && isExpanded) {
+    const messagesChanged = prevMessagesRef.current !== messages;
+
+    if (messagesChanged && messages.length > 0 && isExpanded) {
+      // Update ref for next comparison
+      prevMessagesRef.current = messages;
+
+      // Scroll to bottom with delay to allow render
       setTimeout(() => {
         flatListRef.current?.scrollToEnd({ animated: true });
-      }, 100);
+      }, 150); // Slightly longer delay for loading→content transition
     }
-  }, [messages.length, isExpanded]);
+  }, [messages, isExpanded]);
 
   // Render backdrop (semi-transparent overlay when expanded)
   const renderBackdrop = React.useCallback(
