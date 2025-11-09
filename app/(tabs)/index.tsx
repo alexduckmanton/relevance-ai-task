@@ -13,6 +13,7 @@ export default function HomeScreen() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [inputValue, setInputValue] = useState('');
   const [isDrawerExpanded, setIsDrawerExpanded] = useState(false);
+  const [wasPlaying, setWasPlaying] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     // {
     //   id: '1',
@@ -45,12 +46,33 @@ export default function HomeScreen() {
 
   const bgPage = useThemeColor({ light: '#F9FAFB', dark: '#1F2937' }, 'bgPage');
 
+  // Monitor drawer state changes to auto-resume video playback
+  useEffect(() => {
+    if (isDrawerExpanded) {
+      // Drawer is expanding - capture current playing state and pause if playing
+      // Only set wasPlaying if not already set by event handlers (prevents race condition)
+      if (!wasPlaying) {
+        setWasPlaying(isPlaying);
+      }
+      if (isPlaying) {
+        setIsPlaying(false);
+      }
+    } else {
+      // Drawer is minimizing - resume playback only if it was playing before
+      if (wasPlaying) {
+        setIsPlaying(true);
+        setWasPlaying(false); // Reset flag
+      }
+    }
+  }, [isDrawerExpanded]);
+
   const handlePlayPause = () => {
     setIsPlaying(!isPlaying);
   };
 
   const handleInputFocus = () => {
     if (isPlaying) {
+      setWasPlaying(true);
       setIsPlaying(false);
     }
     // Auto-expand drawer when focusing input
@@ -95,6 +117,7 @@ export default function HomeScreen() {
 
     // Pause video when message is submitted
     if (isPlaying) {
+      setWasPlaying(true);
       setIsPlaying(false);
     }
 
