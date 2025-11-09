@@ -1,6 +1,6 @@
-# Welcome to your Expo app 👋
+# Hi James & Dan 👋
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Hope you enjoy my little prototype! I've started with an [Expo](https://expo.dev) project, created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app), so you should be able to run it locally without too much trouble. 
 
 ## Get started
 
